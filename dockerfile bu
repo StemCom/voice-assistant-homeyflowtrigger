@@ -1,0 +1,49 @@
+# challenge-dockerfile-v1
+# Dockerfile voor OVOS Skill: Homey Flow Trigger
+
+
+# Base image met OVOS / Mycroft dependencies
+FROM python:3.12-slim
+
+ARG DEBIAN_FRONTEND=noninteractive
+ARG OVOS_USER=ovos
+
+# Zet maintainer info
+LABEL maintainer="you@example.com"
+
+# Install OS deps and Node 20 LTS
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl ca-certificates gnupg build-essential \
+  && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+  && apt-get install -y nodejs \
+  && npm install -g npm@latest \
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Omgevingsvariabelen (runtime kan deze overrulen)
+ENV OVOS_USER=ovos \
+    HOME=/home/ovos \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
+# Gebruik bestaande user
+RUN useradd -m -s /bin/bash ovos
+
+# Skill code in container (altijd als root)
+WORKDIR /home/ovos/ovos-skill-HomeyFlowTrigger
+COPY . .
+
+# 🔑 FIX: ownership corrigeren
+RUN chown -R ovos:ovos /home/ovos
+USER ovos
+
+# Install Node dependencies
+WORKDIR /home/ovos/ovos-skill-HomeyFlowTrigger/nodejs
+RUN npm install homey-api
+
+# Python deps 
+WORKDIR /home/ovos/ovos-skill-HomeyFlowTrigger
+RUN pip install --upgrade pip \
+ && pip install -e .
+
+# Start je skill
+CMD ["python", "-m", "ovos_skill_homeyflowtrigger"]

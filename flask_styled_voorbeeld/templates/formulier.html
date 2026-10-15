@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Formulier{% endblock %}
+{% block content %}
+  <hgroup>
+    <h1>Formulier-demo</h1>
+    <p>Flask <code>flash()</code> toont nette meldingen bovenaan (zie <code>base.html</code>).</p>
+  </hgroup>
+
+  <form method="post" novalidate>
+    <label for="naam">Naam</label>
+    <input type="text" id="naam" name="naam" placeholder="Jouw naam" autocomplete="name">
+    <button type="submit">Versturen</button>
+  </form>
+{% endblock %}

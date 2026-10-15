@@ -1,39 +1,53 @@
-# Base image met OVOS / Mycroft dependencies
-FROM python:3.12-slim
+ARG TAG=latest
+FROM docker.io/smartgic/ovos-skill-base:${TAG}
 
-ARG DEBIAN_FRONTEND=noninteractive
+ARG OVOS_USER=ovos
 
-# Zet maintainer info
-LABEL maintainer="you@example.com"
+USER root
 
-# Install OS deps and Node 20 LTS
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl ca-certificates gnupg build-essential \
-  && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-  && apt-get install -y nodejs \
-  && npm install -g npm@latest \
-  && apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN apk update && apk add --no-cache \
+    nodejs \
+    npm \    
+    curl \
+    bash
 
-# Omgevingsvariabelen (runtime kan deze overrulen)
-ENV OVOS_USER=ovos \
-    PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1
+ENV PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PATH="/usr/local/bin:$PATH"
 
-# Gebruik bestaande user (via userns keep-id)
-USER $OVOS_USER
-
-# Skill code in container
-WORKDIR /home/ovos/ovos-skill-homeyflowtrigger
+# kopieer de skill zelf
+WORKDIR /home/ovos/ovos-skill-HomeyFlowTrigger
 COPY . .
 
-# Install Node dependencies
-WORKDIR /home/$OVOS_USER/homeyflowtrigger/nodejs
-RUN if [ -f package.json ]; then npm ci; else npm install homey-api; fi
-
-# Python deps 
-WORKDIR /home/ovos/ovos-skill-homeyflowtrigger
+# installeer de python dependencies
 RUN pip install --upgrade pip \
- && pip install -e .
+ && pip install -e . \
+ && uv pip install -U ovos-workshop \
+ && uv pip install docker
 
-# Start je skill
-CMD ["python", "-m", "ovos_skill_homeyflowtrigger"]
+RUN chown ${OVOS_USER}:${OVOS_USER} -R /home/ovos/ovos-skill-HomeyFlowTrigger
+
+USER ${OVOS_USER}
+
+# Default CMD: init/install Node modules bij runtime
+WORKDIR /home/ovos/ovos-skill-HomeyFlowTrigger/nodejs
+CMD ["sh", "-c", "\
+  cd /home/ovos/ovos-skill-HomeyFlowTrigger/nodejs && \  
+  npm init -y || true && \
+  npm install homey-api && \
+  npm install && \
+  cd /home/ovos/ovos-skill-HomeyFlowTrigger && \
+  exec ovos-skill-launcher ovos-skill-homeyflowtrigger.mennebos \
+"]
+
+  # exec ovos-skill-launcher ovos-skill-homeyflowtrigger.mennebos \
+#"]
+
+# --- ENTRYPOINT: start OVOS skill ---
+#ENTRYPOINT ["sh", "-c", "\
+#  cd /home/ovos/ovos-skill-HomeyFlowTrigger && \
+#  exec ovos-skill-launcher ovos-skill-homeyflowtrigger.mennebos \
+#"]
+
+# ENTRYPOINT start de skill
+#ENTRYPOINT ["ovos-skill-launcher", "ovos-skill-homeyflowtrigger.mennebos"]

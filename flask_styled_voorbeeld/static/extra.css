@@ -1,0 +1,20 @@
+/* Kleine aanvulling op Pico: iets meer lucht en duidelijke flash-states */
+main.container {
+  padding-block: 1rem 2rem;
+}
+
+.flash {
+  padding: 0.75rem 1rem;
+  border-radius: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.flash--valid {
+  background: color-mix(in srgb, var(--pico-primary-background) 12%, transparent);
+  border: 1px solid var(--pico-primary);
+}
+
+.flash--invalid {
+  background: color-mix(in srgb, var(--pico-del-color) 12%, transparent);
+  border: 1px solid var(--pico-del-color);
+}

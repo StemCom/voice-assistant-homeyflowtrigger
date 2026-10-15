@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+  <hgroup>
+    <h1>Welkom</h1>
+    <p>Dit is een minimaal Flask-voorbeeld met duidelijke hiërarchie en leesbare opmaak.</p>
+  </hgroup>
+
+  <section aria-labelledby="sec-acties">
+    <h2 id="sec-acties">Acties</h2>
+    <div class="grid">
+      <a href="{{ url_for('formulier') }}" role="button">Naar formulier-demo</a>
+      <a href="https://picocss.com/docs" class="secondary" target="_blank" rel="noopener">Pico-documentatie</a>
+    </div>
+  </section>
+
+  <section aria-labelledby="sec-kaarten">
+    <h2 id="sec-kaarten">Voorbeeldkaarten</h2>
+    <div class="grid">
+      <article>
+        <header><strong>Eenvoud</strong></header>
+        <p>Gebruik gewone HTML: koppen, paragrafen, knoppen, formulieren. Pico vult de stijl aan.</p>
+      </article>
+      <article>
+        <header><strong>Consistentie</strong></header>
+        <p>Alles staat in <code>base.html</code>: navigatie, berichten, footer. Nieuwe pagina’s extenden die layout.</p>
+      </article>
+      <article>
+        <header><strong>Volgende stap</strong></header>
+        <p>Op een server: <code>gunicorn</code> achter Nginx, en een echte <code>secret_key</code> via omgeving.</p>
+      </article>
+    </div>
+  </section>
+{% endblock %}

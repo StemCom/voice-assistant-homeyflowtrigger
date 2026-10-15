@@ -173,15 +173,6 @@ class HomeyFlowSkill(OVOSSkill):
         except Exception as e:
             self.log.error(f"❌ Error registering intents: {e}")
 
-    def restart_ovos_service():
-        try:
-            subprocess.run(["systemctl", "restart", "ovos"], check=True)
-            print("✅ OVOS service restarted successfully.")
-        except subprocess.CalledProcessError as e:
-            print(f"❌ Failed to restart OVOS service: {e}")
-        except Exception as e:
-            print(f"❌ Unexpected error: {e}")
-
     def _setup_mqtt(self):
         try:
             # MQTT broker details
@@ -410,6 +401,7 @@ class HomeyFlowSkill(OVOSSkill):
 
     def restart_ovos_service(self):
         """Restart the OVOS service to retrain Padatious."""
+
         try:
             subprocess.run(["systemctl", "--user", "restart", "ovos.service"], check=True)
             self.log.info("✅ OVOS service succesvol herstart.")
@@ -420,7 +412,7 @@ class HomeyFlowSkill(OVOSSkill):
 
     #@intent_handler(IntentBuilder("homey.intent"))
     def handle_start_flow(self, message):
-        # Extract the utterance from the message
+        # Extract the utterance from the message received from bus
         utterance = message.data.get("utterance", "").strip().lower()
 
         # Fallback to the first item in 'utterances' if 'utterance' is empty
@@ -472,11 +464,11 @@ class HomeyFlowSkill(OVOSSkill):
             self.log.error(f"❌ Geen id gevonden voor flow: '{flow_name}'")
             return
 
-        self.log.info(f"✅ Het pad naar start_Flow.js is {self.nodejs_start_flow}")
+        self.log.info(f"✅ Het pad naar start_flow.js is {self.nodejs_start_flow}")
+
         # Stel het pad in naar het Node.js-script en geef de flow-id door als argument
         args = ["node", self.nodejs_start_flow, flow_id]
         script_dir = os.path.dirname(self.nodejs_start_flow)  # Get the directory of the script
-
         try:
             result = subprocess.run(args, cwd=script_dir, capture_output=True, text=True, check=True)
             output = result.stdout.strip()

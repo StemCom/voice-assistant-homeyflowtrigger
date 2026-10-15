@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="nl" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Demo{% endblock %} · Flask + Pico</title>
+  <!-- Pico.css: weinig classes nodig; semantische HTML ziet er al verzorgd uit -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='extra.css') }}">
+</head>
+<body>
+  <header class="container">
+    <nav>
+      <ul>
+        <li><strong>Flask voorbeeld</strong></li>
+      </ul>
+      <ul>
+        <li><a href="{{ url_for('home') }}">Home</a></li>
+        <li><a href="{{ url_for('formulier') }}">Formulier</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <article class="flash flash--{{ category }}">{{ message }}</article>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="container">
+    <small>Pico.css via CDN — licht/donker volgt systeemvoorkeur als je <code>data-theme</code> weglaat.</small>
+  </footer>
+</body>
+</html>
